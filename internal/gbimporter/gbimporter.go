@@ -2,11 +2,12 @@ package gbimporter
 
 import (
 	"fmt"
-	"go/build"
 	"go/types"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"golang.org/x/tools/go/packages"
 )
 
 // We need to mangle go/build.Default to make gcimporter work as
@@ -63,25 +64,37 @@ func (i *importer) ImportFrom(path, srcDir string, mode types.ImportMode) (*type
 	buildDefaultLock.Lock()
 	defer buildDefaultLock.Unlock()
 
-	origDef := build.Default
-	defer func() { build.Default = origDef }()
+	var src []string
+	src = append(src, path)
+	cfg := &packages.Config{
+		Mode: packages.LoadTypes,
+		Dir:  srcDir,
+	}
+	pkgs, err := packages.Load(cfg, src...)
 
-	def := &build.Default
-	def.GOARCH = i.ctx.GOARCH
-	def.GOOS = i.ctx.GOOS
-	def.GOROOT = i.ctx.GOROOT
-	def.GOPATH = i.ctx.GOPATH
-	def.CgoEnabled = i.ctx.CgoEnabled
-	def.UseAllFiles = i.ctx.UseAllFiles
-	def.Compiler = i.ctx.Compiler
-	def.BuildTags = i.ctx.BuildTags
-	def.ReleaseTags = i.ctx.ReleaseTags
-	def.InstallSuffix = i.ctx.InstallSuffix
+	// origDef := build.Default
+	// defer func() { build.Default = origDef }()
 
-	def.SplitPathList = i.splitPathList
-	def.JoinPath = i.joinPath
+	// def := &build.Default
+	// def.GOARCH = i.ctx.GOARCH
+	// def.GOOS = i.ctx.GOOS
+	// def.GOROOT = i.ctx.GOROOT
+	// def.GOPATH = i.ctx.GOPATH
+	// def.CgoEnabled = i.ctx.CgoEnabled
+	// def.UseAllFiles = i.ctx.UseAllFiles
+	// def.Compiler = i.ctx.Compiler
+	// def.BuildTags = i.ctx.BuildTags
+	// def.ReleaseTags = i.ctx.ReleaseTags
+	// def.InstallSuffix = i.ctx.InstallSuffix
 
-	return i.underlying.ImportFrom(path, srcDir, mode)
+	// def.SplitPathList = i.splitPathList
+	// def.JoinPath = i.joinPath
+
+	// var result, err = i.underlying.ImportFrom(path, srcDir, mode)
+	if len(pkgs) > 0 {
+		return pkgs[0].Types, nil
+	}
+	return nil, err
 }
 
 func (i *importer) splitPathList(list string) []string {

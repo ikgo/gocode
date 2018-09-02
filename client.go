@@ -14,8 +14,8 @@ import (
 
 	"runtime/debug"
 
-	"github.com/mdempsky/gocode/internal/gbimporter"
-	"github.com/mdempsky/gocode/internal/suggest"
+	"github.com/ikgo/gocode/internal/gbimporter"
+	"github.com/ikgo/gocode/internal/suggest"
 )
 
 func doClient() {

@@ -1,3 +1,5 @@
+# FIX of go 1.11 modules enabled
+
 [![Build Status](https://travis-ci.org/mdempsky/gocode.svg?branch=master)](https://travis-ci.org/mdempsky/gocode)
 
 ## An autocompletion daemon for the Go programming language
