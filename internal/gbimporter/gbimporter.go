@@ -3,6 +3,7 @@ package gbimporter
 import (
 	"fmt"
 	"go/types"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -14,6 +15,21 @@ import (
 // intended, so use a lock to protect against concurrent accesses.
 var buildDefaultLock sync.Mutex
 
+type pkgCache struct {
+	cacheLock   *sync.Mutex
+	pkgCache    map[string][]*packages.Package
+	pkgErrCache map[string]error
+}
+
+var pc *pkgCache
+
+func init() {
+	pc = &pkgCache{
+		cacheLock: &sync.Mutex{},
+		pkgCache: make(map[string][]*packages.Package),
+		pkgErrCache: make(map[string]error),
+	}
+}
 // importer implements types.ImporterFrom and provides transparent
 // support for gb-based projects.
 type importer struct {
@@ -60,17 +76,32 @@ func (i *importer) Import(path string) (*types.Package, error) {
 	return i.ImportFrom(path, "", 0)
 }
 
+func (pc *pkgCache) Load(srcDir string, src ...string) ([]*packages.Package, error) {
+	keyList := []string{srcDir}
+	keyList = append(keyList, src...)
+	key := strings.Join(keyList, string(os.PathListSeparator))
+	pc.cacheLock.Lock()
+	defer pc.cacheLock.Unlock()
+	val, exists := pc.pkgCache[key]
+	if exists {
+		return val,pc.pkgErrCache[key]
+	}
+	val, err := packages.Load(&packages.Config{
+		Mode: packages.LoadTypes,
+		Dir:  srcDir,
+	}, src...)
+	pc.pkgCache[key] = val
+	pc.pkgErrCache[key] = err
+	return val,err
+}
+
 func (i *importer) ImportFrom(path, srcDir string, mode types.ImportMode) (*types.Package, error) {
 	buildDefaultLock.Lock()
 	defer buildDefaultLock.Unlock()
 
 	var src []string
 	src = append(src, path)
-	cfg := &packages.Config{
-		Mode: packages.LoadTypes,
-		Dir:  srcDir,
-	}
-	pkgs, err := packages.Load(cfg, src...)
+	pkgs, err := pc.Load(srcDir, src...)
 
 	// origDef := build.Default
 	// defer func() { build.Default = origDef }()
