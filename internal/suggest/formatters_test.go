@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/ikgo/gocode/internal/suggest"
+	"github.com/achansen121/gocode/internal/suggest"
 )
 
 func TestFormatters(t *testing.T) {
-	// TODO(ikgo): More comprehensive test.
+	// TODO(achansen121): More comprehensive test.
 
 	num := len("client")
 	candidates := []suggest.Candidate{{

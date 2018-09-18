@@ -4,7 +4,7 @@ import "go/build"
 
 // PackedContext is a copy of build.Context without the func fields.
 //
-// TODO(ikgo): Not sure this belongs here.
+// TODO(achansen121): Not sure this belongs here.
 type PackedContext struct {
 	GOARCH        string
 	GOOS          string
