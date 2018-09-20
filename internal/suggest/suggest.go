@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ikgo/gocode/internal/lookdot"
+	"github.com/achansen121/gocode/internal/lookdot"
 )
 
 type Config struct {
@@ -177,7 +177,7 @@ func (c *Config) findOtherPackageFiles(filename, pkgName string) []string {
 	}
 	isTestFile := strings.HasSuffix(file, "_test.go")
 
-	// TODO(ikgo): Use go/build.(*Context).MatchFile or
+	// TODO(achansen121): Use go/build.(*Context).MatchFile or
 	// something to properly handle build tags?
 	var out []string
 	for _, dent := range dents {

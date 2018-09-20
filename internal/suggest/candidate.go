@@ -176,7 +176,7 @@ func (b *candidateCollector) appendObject(obj types.Object) {
 		}
 	}
 
-	// TODO(ikgo): Reconsider this functionality.
+	// TODO(achansen121): Reconsider this functionality.
 	if b.filter != nil && !b.filter(obj) {
 		return
 	}

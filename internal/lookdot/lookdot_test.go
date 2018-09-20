@@ -10,7 +10,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/ikgo/gocode/internal/lookdot"
+	"github.com/achansen121/gocode/internal/lookdot"
 )
 
 const src = `
@@ -110,7 +110,7 @@ func TestWalk(t *testing.T) {
 
 		var got []string
 		visitor := func(obj types.Object) {
-			// TODO(ikgo): Should Walk be responsible
+			// TODO(achansen121): Should Walk be responsible
 			// for filtering out inaccessible objects?
 			if obj.Exported() || obj.Pkg() == pkg {
 				got = append(got, obj.Name())
